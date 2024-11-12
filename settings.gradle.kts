@@ -20,5 +20,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "NBAListWithDetailApp"
-include(":app")
+include(":NBAListWithDetailApp")
  

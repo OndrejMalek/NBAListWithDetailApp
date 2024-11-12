@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    kotlin("plugin.serialization") version "2.0.21"
 }
 
 android {
@@ -37,6 +38,19 @@ android {
     buildFeatures {
         compose = true
     }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/INDEX.LIST"
+            merges += "META-INF/LICENSE.md"
+            merges += "META-INF/LICENSE-notice.md"
+        }
+    }
+
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
 
 dependencies {
@@ -56,4 +70,27 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation(libs.retrofit)
+    implementation(libs.converter.kotlinx.serialization)
+    implementation(libs.logging.interceptor)
+
+    implementation(libs.androidx.navigation.compose)
+    // Kotlin Test dependencies
+    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlinx.coroutines.test)
+
+    androidTestImplementation(kotlin("test"))
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+
+    // kotlinx-serialization dependencies
+    implementation(libs.kotlinx.serialization.json)
+
+//    testImplementation("io.kotest:kotest-runner-junit5:+")
+    testImplementation(libs.kotest.assertions.core)
+    androidTestImplementation(libs.kotest.assertions.core)
+//    testImplementation("io.kotest:kotest-property:5.8.1")
+
+    // KMP logging
+    implementation(libs.kermit)
 }

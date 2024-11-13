@@ -3,6 +3,11 @@ package eu.malek.nbaplayers
 /**
  * Injection module with Application lifecycle scope
  */
-class AppModule {
+open class AppModule {
+
+}
+
+
+class AppModuleMock : AppModule() {
 
 }

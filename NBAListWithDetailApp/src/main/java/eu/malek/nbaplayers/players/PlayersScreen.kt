@@ -3,6 +3,8 @@ package eu.malek.nbaplayers.players
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModelStoreOwner
+import eu.malek.android.compose.checkViewModelStoreOwner
 import eu.malek.android.compose.viewModelWithAppModule
 import eu.malek.nbaplayers.ui.theme.NBAListWithDetailAppTheme
 
@@ -20,9 +22,13 @@ fun PlayersScreenPreview() {
 }
 
 @Composable
-private fun playersViewModel() = viewModelWithAppModule { appModule, savedStateHandle ->
-    PlayersViewModel(
-        appModule,
-        savedStateHandle
-    )
-}
+fun playersViewModel(
+    viewModelStoreOwner: ViewModelStoreOwner = checkViewModelStoreOwner(),
+) =
+    viewModelWithAppModule(viewModelStoreOwner = viewModelStoreOwner) { appModule, savedStateHandle ->
+        PlayersViewModel(
+            appModule,
+            savedStateHandle
+        )
+    }
+

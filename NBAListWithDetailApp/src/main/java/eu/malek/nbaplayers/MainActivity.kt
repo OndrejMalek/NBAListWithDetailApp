@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
 fun MainNavHost() {
     NavHost(rememberNavController(), startDestination = Route.Players) {
         composable<Route.Players> {
-            PlayersScreen(viewModel())
+            PlayersScreen()
         }
     }
 }

@@ -44,3 +44,11 @@ inline fun <reified VM : ViewModel> viewModelWithAppModule(
             }
         }
     )
+
+
+@Composable
+fun checkViewModelStoreOwner() = checkNotNull(
+    LocalViewModelStoreOwner.current
+) {
+    "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+}

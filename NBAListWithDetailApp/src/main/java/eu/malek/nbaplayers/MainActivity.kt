@@ -4,13 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import eu.malek.nbaplayers.players.PlayersScreen
 import eu.malek.nbaplayers.ui.theme.NBAListWithDetailAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,29 +18,21 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NBAListWithDetailAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                MainNavHost()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun MainNavHost() {
+    NavHost(rememberNavController(), startDestination = Route.Players) {
+        composable<Route.Players> {
+            PlayersScreen(viewModel())
+        }
+    }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    NBAListWithDetailAppTheme {
-        Greeting("Android")
-    }
+object Route {
+    object Players
 }

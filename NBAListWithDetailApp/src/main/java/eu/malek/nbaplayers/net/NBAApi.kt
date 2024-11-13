@@ -4,6 +4,7 @@ import eu.malek.nbaplayers.BuildConfig
 import eu.malek.nbaplayers.net.data.Envelop
 import eu.malek.nbaplayers.net.data.Player
 import kotlinx.serialization.json.Json
+import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -13,7 +14,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
+import java.io.File
 import java.math.BigDecimal
+
 
 class NBAApiService(val service: NBAApi = NBAApi.createService()) : NBAApi by service
 
@@ -52,14 +55,18 @@ interface NBAApi {
             return retrofit.create(NBAApi::class.java)
         }
 
-        fun createHttpClient(
-        ): OkHttpClient {
+        fun createHttpClient(cacheDir: File? = null): OkHttpClient {
             return OkHttpClient.Builder()
                 .apply {
                     if (BuildConfig.DEBUG) {
                         addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                     }
-                }.addInterceptor(addAuthorizationHeader())
+                    //TODO
+                    cacheDir?.let {
+                        cache(Cache(it, 10 * 1024 * 1024L))
+                    }
+                }
+                .addInterceptor(addAuthorizationHeader())
                 .build()
         }
 

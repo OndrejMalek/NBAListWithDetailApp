@@ -1,5 +1,6 @@
 [versions]
 agp = "8.7.2"
+coil = "3.0.2"
 converterKotlinxSerialization = "2.11.0"
 kotlin = "2.0.0"
 coreKtx = "1.13.1"
@@ -15,11 +16,15 @@ kotlinxCoroutinesTest = "1.8.0"
 kotlinxSerializationJson = "1.7.3"
 loggingInterceptor = "4.12.0"
 navigationCompose = "2.8.3"
+pagingCompose = "3.3.2"
 retrofit = "2.11.0"
 
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingCompose" }
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 converter-kotlinx-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "converterKotlinxSerialization" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

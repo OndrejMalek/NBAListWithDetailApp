@@ -7,29 +7,29 @@ import kotlinx.serialization.SerialName
 
 @Serializable
 data class Player(
-    @SerialName("id") var id: Int? = null,
-    @SerialName("first_name") var firstName: String? = null,
-    @SerialName("last_name") var lastName: String? = null,
-    @SerialName("position") var position: String? = null,
-    @SerialName("height") var height: String? = null,
-    @SerialName("weight") var weight: String? = null,
-    @SerialName("jersey_number") var jerseyNumber: String? = null,
-    @SerialName("college") var college: String? = null,
-    @SerialName("country") var country: String? = null,
-    @SerialName("draft_year") var draftYear: Int? = null,
-    @SerialName("draft_round") var draftRound: Int? = null,
-    @SerialName("draft_number") var draftNumber: Int? = null,
-    @SerialName("team") var team: Team? = Team()
+    @SerialName("id") val id: Int? = null,
+    @SerialName("first_name") val firstName: String? = null,
+    @SerialName("last_name") val lastName: String? = null,
+    @SerialName("position") val position: String? = null,
+    @SerialName("height") val height: String? = null,
+    @SerialName("weight") val weight: String? = null,
+    @SerialName("jersey_number") val jerseyNumber: String? = null,
+    @SerialName("college") val college: String? = null,
+    @SerialName("country") val country: String? = null,
+    @SerialName("draft_year") val draftYear: Int? = null,
+    @SerialName("draft_round") val draftRound: Int? = null,
+    @SerialName("draft_number") val draftNumber: Int? = null,
+    @SerialName("team") val team: Team? = Team()
 
 )
 
 @Serializable
 data class Team(
-    @SerialName("id") var id: Int? = null,
-    @SerialName("conference") var conference: String? = null,
-    @SerialName("division") var division: String? = null,
-    @SerialName("city") var city: String? = null,
-    @SerialName("name") var name: String? = null,
-    @SerialName("full_name") var fullName: String? = null,
-    @SerialName("abbreviation") var abbreviation: String? = null
+    @SerialName("id") val id: Int? = null,
+    @SerialName("conference") val conference: String? = null,
+    @SerialName("division") val division: String? = null,
+    @SerialName("city") val city: String? = null,
+    @SerialName("name") val name: String? = null,
+    @SerialName("full_name") val fullName: String? = null,
+    @SerialName("abbreviation") val abbreviation: String? = null
 )

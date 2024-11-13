@@ -18,8 +18,6 @@ import java.io.File
 import java.math.BigDecimal
 
 
-class NBAApiService(val service: NBAApi = NBAApi.createService()) : NBAApi by service
-
 /**
  * See [docs](https://docs.balldontlie.io/)
  */

@@ -98,4 +98,9 @@ dependencies {
 
     // KMP logging
     implementation(libs.kermit)
+
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
+    implementation(libs.androidx.paging.compose)
 }

@@ -5,12 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import eu.malek.nbaplayers.players.PlayersScreen
 import eu.malek.nbaplayers.ui.theme.NBAListWithDetailAppTheme
+import kotlinx.serialization.Serializable
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,13 +26,17 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainNavHost() {
-    NavHost(rememberNavController(), startDestination = Route.Players) {
+    val navController = rememberNavController()
+    NavHost(navController, startDestination = Route.Players) {
         composable<Route.Players> {
-            PlayersScreen()
+            PlayersScreen(navController = navController)
         }
     }
 }
 
 object Route {
+    @Serializable
+    data class PlayerDetail(val id: Int)
+    @Serializable
     object Players
 }

@@ -2,6 +2,8 @@ package eu.malek.nbaplayers.net.data
 
 import kotlinx.serialization.json.Json
 
+fun Player.Companion.mock() = Player.envelopeMock().data[0]
+
 fun Player.Companion.mocks(count: Int) =
     List(count) { index -> Player.envelopeMock().data[0].copy(id = index) }
 

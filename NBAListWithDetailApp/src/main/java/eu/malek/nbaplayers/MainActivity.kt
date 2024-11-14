@@ -10,7 +10,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
-import androidx.navigation.toRoute
 import eu.malek.nbaplayers.playerdetail.PlayerDetailScreen
 import eu.malek.nbaplayers.players.PlayersScreen
 import eu.malek.nbaplayers.players.playersViewModel
@@ -49,9 +48,7 @@ fun MainNavHost() {
                     navController.getBackStackEntry(Route.PlayersRoot)
                 }
 
-                val player: Route.PlayerDetail = backStackEntry.toRoute()
                 PlayerDetailScreen(
-                    navController = navController,
                     viewModel = playersViewModel(viewModelStoreOwner = parentEntry)
                 )
             }
@@ -61,11 +58,11 @@ fun MainNavHost() {
 
 object Route {
     @Serializable
-    class PlayersRoot
-
-    @Serializable
-    data class PlayerDetail(val id: Int)
+    object PlayersRoot
 
     @Serializable
     object Players
+
+    @Serializable
+    object PlayerDetail
 }

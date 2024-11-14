@@ -70,7 +70,7 @@ fun PlayersScreenPreview_ErrorNoInternet() {
 private fun PlayersScreenPreview(loadState: LoadState) {
     NBAAppPreview {
         PagingPlayersList(
-            MutableStateFlow(
+            pagingPlayerFlow = MutableStateFlow(
                 PagingData.from(
                     data = Player.mocks(20),
                     sourceLoadStates = notLoadingLoadStates().copy(
@@ -94,11 +94,12 @@ fun PlayersScreen(
     viewModel: PlayersViewModel = playersViewModel(),
     navController: NavHostController = rememberNavController()
 ) {
-    PagingPlayersList(viewModel.playersPager.flow, navController)
+    PagingPlayersList(viewModel, viewModel.playersPager.flow, navController)
 }
 
 @Composable
 private fun PagingPlayersList(
+    viewModel: PlayersViewModel = playersViewModel(),
     pagingPlayerFlow: Flow<PagingData<Player>>,
     navController: NavHostController = rememberNavController()
 ) {
@@ -119,7 +120,10 @@ private fun PagingPlayersList(
                 if (item != null) {
                     PlayerItem(
                         player = item,
-                        onClick = { navController.navigate(Route.PlayerDetail(item.id ?: -1)) })
+                        onClick = {
+                            viewModel.selectedPlayer.value = item
+                            navController.navigate(Route.PlayerDetail)
+                        })
                 }
             }
 

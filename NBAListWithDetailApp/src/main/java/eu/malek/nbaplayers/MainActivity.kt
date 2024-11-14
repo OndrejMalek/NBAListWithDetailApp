@@ -5,10 +5,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
+import androidx.navigation.toRoute
+import eu.malek.nbaplayers.playerdetail.PlayerDetailScreen
 import eu.malek.nbaplayers.players.PlayersScreen
+import eu.malek.nbaplayers.players.playersViewModel
 import eu.malek.nbaplayers.ui.theme.NBAListWithDetailAppTheme
 import kotlinx.serialization.Serializable
 
@@ -27,16 +32,40 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainNavHost() {
     val navController = rememberNavController()
-    NavHost(navController, startDestination = Route.Players) {
-        composable<Route.Players> {
-            PlayersScreen(navController = navController)
+    NavHost(navController, startDestination = Route.PlayersRoot) {
+        navigation<Route.PlayersRoot>(startDestination = Route.Players) {
+            composable<Route.Players> { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Route.PlayersRoot)
+                }
+
+                PlayersScreen(
+                    navController = navController,
+                    viewModel = playersViewModel(viewModelStoreOwner = parentEntry)
+                )
+            }
+            composable<Route.PlayerDetail> { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Route.PlayersRoot)
+                }
+
+                val player: Route.PlayerDetail = backStackEntry.toRoute()
+                PlayerDetailScreen(
+                    navController = navController,
+                    viewModel = playersViewModel(viewModelStoreOwner = parentEntry)
+                )
+            }
         }
     }
 }
 
 object Route {
     @Serializable
+    class PlayersRoot
+
+    @Serializable
     data class PlayerDetail(val id: Int)
+
     @Serializable
     object Players
 }

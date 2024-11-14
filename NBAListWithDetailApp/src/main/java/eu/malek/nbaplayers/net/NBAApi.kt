@@ -8,6 +8,8 @@ import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import okhttp3.Protocol
+import okhttp3.ResponseBody.Companion.toResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -31,7 +33,7 @@ interface NBAApi {
 
     companion object {
         const val BASE_URL = "https://api.balldontlie.io/v1/"
-        const val API_KEY = "84769aec-bde3-42e2-890c-7e11b35d83c3"
+        const val API_KEY = "84769aec-bde3-42e2-890c-7e11b35d83c3" //TODO move out of the repo
 
         val json = Json {
             prettyPrint = true
@@ -40,7 +42,6 @@ interface NBAApi {
         }
 
         fun createService(): NBAApi {
-
             val retrofit = Retrofit.Builder()
                 .client(createHttpClient())
                 .baseUrl(BASE_URL)
@@ -55,6 +56,8 @@ interface NBAApi {
 
         fun createHttpClient(cacheDir: File? = null): OkHttpClient {
             return OkHttpClient.Builder()
+                .addInterceptor(catchAllExceptionsInterceptor())
+                .addInterceptor(addAuthorizationHeader())
                 .apply {
                     if (BuildConfig.DEBUG) {
                         addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
@@ -64,7 +67,6 @@ interface NBAApi {
                         cache(Cache(it, 10 * 1024 * 1024L))
                     }
                 }
-                .addInterceptor(addAuthorizationHeader())
                 .build()
         }
 
@@ -73,6 +75,7 @@ interface NBAApi {
                 chain.request().newBuilder().header("Authorization", API_KEY).build()
             )
         }
+
     }
 
     @GET("players")
@@ -86,4 +89,20 @@ interface NBAApi {
         @Query("player_ids[]") playerIds: List<Int>? = null
     ): Response<Envelop<Player>>
 
+}
+
+fun catchAllExceptionsInterceptor() = { chain: Interceptor.Chain ->
+    try {
+        chain.proceed(chain.request())
+    } catch (e: Exception) {
+        val message = e.toString()
+        okhttp3.Response
+            .Builder()
+            .protocol(Protocol.HTTP_1_1)
+            .request(chain.request())
+            .code(1000)
+            .body(message.toResponseBody(null))
+            .message(message)
+            .build()
+    }
 }

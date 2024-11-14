@@ -1,7 +1,6 @@
 package eu.malek.nbaplayers
 
-import eu.malek.nbaplayers.net.NBAApi
-import eu.malek.nbaplayers.net.NBAApiService
+import eu.malek.nbaplayers.net.NBAApiRepo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -10,7 +9,7 @@ import kotlinx.coroutines.SupervisorJob
  * Injection module with Application lifecycle scope
  */
 open class AppModule(
-    val nbaApi: NBAApi = NBAApiService(),
+    val nbaApiRepo: NBAApiRepo = NBAApiRepo(),
     /**
      * Scope with Global / Application lifecycle
      */

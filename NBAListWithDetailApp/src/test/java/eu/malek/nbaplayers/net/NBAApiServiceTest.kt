@@ -8,6 +8,6 @@ import kotlin.test.assertTrue
 class NBAApiServiceTest {
     @Test
     fun getPlayersThrowsNoException() = runTest{
-        assertTrue(NBAApiService().getPlayers(0,35).code() > 0)
+        assertTrue(NBAApiRepo().getPlayers(0, 35).code() > 0)
     }
 }

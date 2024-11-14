@@ -1,13 +1,13 @@
 package eu.malek.nbaplayers.net.data
 
 
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 
 @Serializable
 data class Player(
-    @SerialName("id") val id: Int? = null,
+    @SerialName("id") val id: Int,
     @SerialName("first_name") val firstName: String? = null,
     @SerialName("last_name") val lastName: String? = null,
     @SerialName("position") val position: String? = null,
@@ -19,13 +19,14 @@ data class Player(
     @SerialName("draft_year") val draftYear: Int? = null,
     @SerialName("draft_round") val draftRound: Int? = null,
     @SerialName("draft_number") val draftNumber: Int? = null,
-    @SerialName("team") val team: Team? = Team()
-
-)
+    @SerialName("team") val team: Team? = null
+) {
+    companion object
+}
 
 @Serializable
 data class Team(
-    @SerialName("id") val id: Int? = null,
+    @SerialName("id") val id: Int,
     @SerialName("conference") val conference: String? = null,
     @SerialName("division") val division: String? = null,
     @SerialName("city") val city: String? = null,
@@ -33,3 +34,4 @@ data class Team(
     @SerialName("full_name") val fullName: String? = null,
     @SerialName("abbreviation") val abbreviation: String? = null
 )
+

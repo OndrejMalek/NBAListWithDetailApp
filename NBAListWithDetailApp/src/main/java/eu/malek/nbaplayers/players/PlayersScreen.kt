@@ -4,10 +4,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
@@ -23,27 +25,68 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.paging.LoadState
+import androidx.paging.LoadStates
+import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import eu.malek.android.compose.checkViewModelStoreOwner
 import eu.malek.android.compose.viewModelWithAppModule
-import eu.malek.nbaplayers.AppModuleMock
+import eu.malek.nbaplayers.Route
 import eu.malek.nbaplayers.net.data.Player
-import eu.malek.nbaplayers.ui.theme.NBAListWithDetailAppTheme
+import eu.malek.nbaplayers.net.data.mocks
+import eu.malek.nbaplayers.ui.preview.NBAAppPreview
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import java.net.UnknownHostException
 
 @Preview(showBackground = true)
 @Composable
-fun PlayersScreenPreview() {
-    NBAListWithDetailAppTheme {
-        PlayersScreen(
-            PlayersViewModel(
-                AppModuleMock()
+fun PlayersScreenPreview_Loading() {
+    PlayersScreenPreview(LoadState.Loading)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PlayersScreenPreview_NotLoading() {
+    PlayersScreenPreview(LoadState.NotLoading(false))
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PlayersScreenPreview_Error() {
+    PlayersScreenPreview(LoadState.Error(Exception()))
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PlayersScreenPreview_ErrorNoInternet() {
+    PlayersScreenPreview(LoadState.Error(UnknownHostException()))
+}
+
+
+@Composable
+private fun PlayersScreenPreview(loadState: LoadState) {
+    NBAAppPreview {
+        PagingPlayersList(
+            MutableStateFlow(
+                PagingData.from(
+                    data = Player.mocks(20),
+                    sourceLoadStates = notLoadingLoadStates().copy(
+                        refresh = loadState
+                    )
+                )
             )
         )
     }
 }
+
+private fun notLoadingLoadStates() = LoadStates(
+    refresh = LoadState.NotLoading(false),
+    prepend = LoadState.NotLoading(false),
+    append = LoadState.NotLoading(false)
+)
 
 
 @Composable
@@ -51,39 +94,58 @@ fun PlayersScreen(
     viewModel: PlayersViewModel = playersViewModel(),
     navController: NavHostController = rememberNavController()
 ) {
-    val lazyPagingItems = viewModel.pager.flow.collectAsLazyPagingItems()
+    PagingPlayersList(viewModel.playersPager.flow, navController)
+}
 
-    LazyColumn {
-        if (lazyPagingItems.loadState.refresh == LoadState.Loading) {
-            item {
-                Text(
-                    text = "Waiting for items to load",
-                    modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .wrapContentWidth(Alignment.CenterHorizontally)
-                )
-            }
+@Composable
+private fun PagingPlayersList(
+    pagingPlayerFlow: Flow<PagingData<Player>>,
+    navController: NavHostController = rememberNavController()
+) {
+    val lazyPagingItems = pagingPlayerFlow.collectAsLazyPagingItems()
+    val refresh = lazyPagingItems.loadState.refresh
+    if (refresh is LoadState.Error) {
+        if (refresh.error is UnknownHostException) {
+            CenteredText("No internet connection")
+        } else {
+            CenteredText("Error can not load data")
         }
-
-        items(count = lazyPagingItems.itemCount) { index ->
-            val item = lazyPagingItems[index]
-            if (item != null) {
-                PlayerItem(player = item, onClick = {})
+    } else if (refresh == LoadState.Loading) {
+        CenteredText("Waiting for items to load")
+    } else {
+        LazyColumn {
+            items(count = lazyPagingItems.itemCount) { index ->
+                val item = lazyPagingItems[index]
+                if (item != null) {
+                    PlayerItem(
+                        player = item,
+                        onClick = { navController.navigate(Route.PlayerDetail(item.id ?: -1)) })
+                }
             }
-        }
 
-        if (lazyPagingItems.loadState.append == LoadState.Loading) {
-            item {
-                CircularProgressIndicator(
-                    modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .wrapContentWidth(Alignment.CenterHorizontally)
-                )
+            if (lazyPagingItems.loadState.append == LoadState.Loading) {
+                item {
+                    CircularProgressIndicator(
+                        modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentWidth(Alignment.CenterHorizontally)
+                    )
+                }
             }
         }
     }
+}
+
+@Composable
+private fun CenteredText(text: String) {
+    Text(
+        text = text,
+        modifier =
+        Modifier
+            .fillMaxSize()
+            .wrapContentSize(Alignment.Center)
+    )
 }
 
 @Composable
@@ -97,8 +159,8 @@ fun PlayerItem(player: Player, onClick: () -> Unit) {
         Row(modifier = Modifier.padding(16.dp)) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    //TODO
-//                    .data(player.) // Replace with actual image URL
+                    //TODO API does not provide images
+                    //.data(player.) // Replace with actual image URL
                     .crossfade(true)
                     .build(),
                 contentDescription = "Player Image",
@@ -108,7 +170,7 @@ fun PlayerItem(player: Player, onClick: () -> Unit) {
             Column {
                 Text(text = "${player.firstName} ${player.lastName}")
                 Text(text = "Position: ${player.position}")
-                Text(text = "Team: ${player.team?.fullName}") // Assuming team is nullable
+                Text(text = "Team: ${player.team?.fullName}")
             }
         }
     }

@@ -94,7 +94,7 @@ fun PlayersScreen(
     viewModel: PlayersViewModel = playersViewModel(),
     navController: NavHostController = rememberNavController()
 ) {
-    PagingPlayersList(viewModel, viewModel.playersPager.flow, navController)
+    PagingPlayersList(viewModel, viewModel.playersPagerFlow, navController)
 }
 
 @Composable

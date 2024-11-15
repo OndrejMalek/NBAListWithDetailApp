@@ -9,9 +9,9 @@ import eu.malek.nbaplayers.net.data.Player
 import kotlinx.coroutines.flow.MutableStateFlow
 
 
-class PlayersViewModel(val appModule: AppModule) :
+class PlayersViewModel(private val appModule: AppModule) :
     ViewModel() {
-    val playersPagerFlow = appModule.nbaApiRepo.playersPager.flow.cachedIn(viewModelScope)
+    val playersPagerFlow = appModule.nbaApiRepo.playersPager.cachedIn(viewModelScope)
     val selectedPlayer: MutableStateFlow<Player?> = MutableStateFlow(null)
 }
 

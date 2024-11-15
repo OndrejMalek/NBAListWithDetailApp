@@ -4,15 +4,18 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import eu.malek.nbaplayers.net.NBAApi.HttpStatusCode
 import eu.malek.nbaplayers.net.data.Envelop
+import eu.malek.nbaplayers.ui.data.UiError
+import eu.malek.nbaplayers.ui.data.UiErrorException
 import retrofit2.Response
 
 private const val PAGE_SIZE = 35
 
-enum class HttpStatusCode(val code: Int) {
-    TOO_MANY_REQUESTS(429)
-}
 
+/**
+ * [see docs](https://docs.balldontlie.io/#pagination)
+ */
 fun <T : Any> ballDontLieApiPager(
     apiCall: suspend (cursor: Int, perPage: Int) -> Response<Envelop<T>>,
     pageSize: Int = PAGE_SIZE
@@ -48,17 +51,26 @@ fun <T : Any> ballDontLieApiPager(
                     LoadResult.Page(data = envelop.data, prevKey = prevKey, nextKey = nextKey)
                 }
 
-                response.code() == HttpStatusCode.TOO_MANY_REQUESTS.code -> LoadResult.Error(
-                    TooManyRequestsException(response)
-                )
-
                 else -> {
-                    LoadResult.Error(ResponseException(response))
+                    LoadResult.Error(UiErrorException(response.httpStatusCode().toUiError()))
                 }
             }
         }
     }
 }
 
-open class ResponseException(val response: Response<*>) : Throwable()
-class TooManyRequestsException(response: Response<*>) : ResponseException(response)
+fun HttpStatusCode.toUiError(): UiError {
+    return when (this) {
+        HttpStatusCode.NoConnection -> UiError.NoConnection
+        HttpStatusCode.Unauthorized -> UiError.Unauthorized
+
+        HttpStatusCode.Unknown,
+        HttpStatusCode.BadRequest,
+        HttpStatusCode.NotFound,
+        HttpStatusCode.NotAcceptable -> UiError.ApiConfiguration
+
+        HttpStatusCode.TooManyRequests -> UiError.TooManyRequests
+        HttpStatusCode.InternalServerError -> UiError.InternalServerError
+        HttpStatusCode.ServiceUnavailable -> UiError.ServiceUnavailable
+    }
+}

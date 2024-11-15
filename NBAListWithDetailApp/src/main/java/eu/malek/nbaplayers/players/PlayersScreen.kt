@@ -33,13 +33,15 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import eu.malek.android.compose.checkViewModelStoreOwner
 import eu.malek.android.compose.viewModelWithAppModule
+import eu.malek.nbaplayers.AppModuleMock
 import eu.malek.nbaplayers.Route
 import eu.malek.nbaplayers.net.data.Player
 import eu.malek.nbaplayers.net.data.mocks
+import eu.malek.nbaplayers.ui.data.UiError
+import eu.malek.nbaplayers.ui.data.UiErrorException
 import eu.malek.nbaplayers.ui.preview.NBAAppPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import java.net.UnknownHostException
 
 @Preview(showBackground = true)
 @Composable
@@ -56,13 +58,13 @@ fun PlayersScreenPreview_NotLoading() {
 @Preview(showBackground = true)
 @Composable
 fun PlayersScreenPreview_Error() {
-    PlayersScreenPreview(LoadState.Error(Exception()))
+    PlayersScreenPreview(LoadState.Error(UiErrorException(UiError.ApiConfiguration)))
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PlayersScreenPreview_ErrorNoInternet() {
-    PlayersScreenPreview(LoadState.Error(UnknownHostException()))
+    PlayersScreenPreview(LoadState.Error(UiErrorException(UiError.NoConnection)))
 }
 
 
@@ -70,6 +72,7 @@ fun PlayersScreenPreview_ErrorNoInternet() {
 private fun PlayersScreenPreview(loadState: LoadState) {
     NBAAppPreview {
         PagingPlayersList(
+            viewModel = PlayersViewModel(AppModuleMock()),
             pagingPlayerFlow = MutableStateFlow(
                 PagingData.from(
                     data = Player.mocks(20),
@@ -99,23 +102,26 @@ fun PlayersScreen(
 
 @Composable
 private fun PagingPlayersList(
-    viewModel: PlayersViewModel = playersViewModel(),
+    viewModel: PlayersViewModel,
     pagingPlayerFlow: Flow<PagingData<Player>>,
     navController: NavHostController = rememberNavController()
 ) {
     val lazyPagingItems = pagingPlayerFlow.collectAsLazyPagingItems()
     val refresh = lazyPagingItems.loadState.refresh
     if (refresh is LoadState.Error) {
-        if (refresh.error is UnknownHostException) {
-            CenteredText("No internet connection")
+        val errorException = refresh.error
+        if (errorException is UiErrorException) {
+            CenteredText(errorException.error.message)
         } else {
-            CenteredText("Error can not load data")
+            throw IllegalStateException("Unknown error type", errorException)
         }
     } else if (refresh == LoadState.Loading) {
         CenteredText("Waiting for items to load")
     } else {
-        LazyColumn {
-            items(count = lazyPagingItems.itemCount) { index ->
+        LazyColumn(Modifier.fillMaxSize()) {
+            items(
+                count = lazyPagingItems.itemCount
+            ) { index ->
                 val item = lazyPagingItems[index]
                 if (item != null) {
                     PlayerItem(
@@ -140,6 +146,7 @@ private fun PagingPlayersList(
         }
     }
 }
+
 
 @Composable
 private fun CenteredText(text: String) {

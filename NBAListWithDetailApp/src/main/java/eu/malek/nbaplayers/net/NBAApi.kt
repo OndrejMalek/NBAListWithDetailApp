@@ -1,15 +1,15 @@
 package eu.malek.nbaplayers.net
 
 import eu.malek.nbaplayers.BuildConfig
+import eu.malek.nbaplayers.net.NBAApi.HttpStatusCode
 import eu.malek.nbaplayers.net.data.Envelop
 import eu.malek.nbaplayers.net.data.Player
+import eu.malek.retrofit2.catchAllExceptionsInterceptor
 import kotlinx.serialization.json.Json
 import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import okhttp3.Protocol
-import okhttp3.ResponseBody.Companion.toResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -19,11 +19,45 @@ import retrofit2.http.Query
 import java.io.File
 import java.math.BigDecimal
 
+fun <T> Response<T>.httpStatusCode(): HttpStatusCode {
+    return HttpStatusCode.fromCode(this.code())
+}
+
 
 /**
  * See [docs](https://docs.balldontlie.io/)
  */
 interface NBAApi {
+
+    /**
+     * based on [docs - errors](https://docs.balldontlie.io/#errors)
+     */
+    enum class HttpStatusCode(val code: Int, val message: String) {
+        NoConnection(1000, "No connection"),
+
+        Unauthorized(
+            401,
+            "You either need an API key or your account tier does not have access to the endpoint."
+        ),
+
+        Unknown(0, "Unknown response error code"),
+        BadRequest(400, "The request is invalid. The request parameters are probably incorrect."),
+        NotFound(404, "The specified resource could not be found."),
+        NotAcceptable(406, "You requested a format that isn't json."),
+
+        TooManyRequests(429, "You're rate limited."),
+        InternalServerError(500, "We had a problem with our server. Try again later."),
+        ServiceUnavailable(
+            503,
+            "We're temporarily offline for maintenance. Please try again later."
+        ), ;
+
+        companion object {
+            fun fromCode(code: Int): HttpStatusCode {
+                return entries.find { it.code == code } ?: Unknown
+            }
+        }
+    }
 
     enum class AccountTier(val requestsPerMin: Int, val priceUSDPerMonth: BigDecimal) {
         GOAT(6000, BigDecimal(39.99)),
@@ -56,7 +90,7 @@ interface NBAApi {
 
         fun createHttpClient(cacheDir: File? = null): OkHttpClient {
             return OkHttpClient.Builder()
-                .addInterceptor(catchAllExceptionsInterceptor())
+                .addInterceptor(catchAllExceptionsInterceptor(HttpStatusCode.NoConnection.code))
                 .addInterceptor(addAuthorizationHeader())
                 .apply {
                     if (BuildConfig.DEBUG) {
@@ -91,18 +125,5 @@ interface NBAApi {
 
 }
 
-fun catchAllExceptionsInterceptor() = { chain: Interceptor.Chain ->
-    try {
-        chain.proceed(chain.request())
-    } catch (e: Exception) {
-        val message = e.toString()
-        okhttp3.Response
-            .Builder()
-            .protocol(Protocol.HTTP_1_1)
-            .request(chain.request())
-            .code(1000)
-            .body(message.toResponseBody(null))
-            .message(message)
-            .build()
-    }
-}
+
+

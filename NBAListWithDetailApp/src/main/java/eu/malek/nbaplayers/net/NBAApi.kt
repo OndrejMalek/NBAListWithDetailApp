@@ -5,6 +5,7 @@ import eu.malek.nbaplayers.net.NBAApi.HttpStatusCode
 import eu.malek.nbaplayers.net.data.Envelop
 import eu.malek.nbaplayers.net.data.Player
 import eu.malek.retrofit2.catchAllExceptionsInterceptor
+import eu.malek.retrofit2.forceCacheAllResponsesInterceptor
 import kotlinx.serialization.json.Json
 import okhttp3.Cache
 import okhttp3.Interceptor
@@ -18,6 +19,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 import java.io.File
 import java.math.BigDecimal
+import kotlin.time.Duration.Companion.hours
 
 fun <T> Response<T>.httpStatusCode(): HttpStatusCode {
     return HttpStatusCode.fromCode(this.code())
@@ -75,9 +77,9 @@ interface NBAApi {
             ignoreUnknownKeys = true
         }
 
-        fun createService(): NBAApi {
+        fun createService(cacheDir: File?): NBAApi {
             val retrofit = Retrofit.Builder()
-                .client(createHttpClient())
+                .client(createHttpClient(cacheDir))
                 .baseUrl(BASE_URL)
                 .addConverterFactory(
                     json.asConverterFactory(
@@ -96,13 +98,17 @@ interface NBAApi {
                     if (BuildConfig.DEBUG) {
                         addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                     }
-                    //TODO
+
+
+
                     cacheDir?.let {
                         cache(Cache(it, 10 * 1024 * 1024L))
+                        forceCacheAllResponsesInterceptor(4.hours)
                     }
                 }
                 .build()
         }
+
 
         private fun addAuthorizationHeader() = { chain: Interceptor.Chain ->
             chain.proceed(

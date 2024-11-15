@@ -4,12 +4,14 @@ import eu.malek.nbaplayers.net.NBAApiRepo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import java.io.File
 
 /**
  * Injection module with Application lifecycle scope
  */
 open class AppModule(
-    val nbaApiRepo: NBAApiRepo = NBAApiRepo(),
+    cacheDir: File? = null,
+    val nbaApiRepo: NBAApiRepo = NBAApiRepo(cacheDir),
     /**
      * Scope with Global / Application lifecycle
      */

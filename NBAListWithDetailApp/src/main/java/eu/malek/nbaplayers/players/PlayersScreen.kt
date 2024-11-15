@@ -1,6 +1,7 @@
 package eu.malek.nbaplayers.players
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -116,7 +117,7 @@ private fun PagingPlayersList(
             throw IllegalStateException("Unknown error type", errorException)
         }
     } else if (refresh == LoadState.Loading) {
-        CenteredText("Waiting for items to load")
+        CenteredTextWithProgress()
     } else {
         LazyColumn(Modifier.fillMaxSize()) {
             items(
@@ -144,6 +145,29 @@ private fun PagingPlayersList(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun CenteredTextWithProgress() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "Waiting for items to load",
+            modifier =
+            Modifier
+                .fillMaxWidth()
+                .wrapContentSize(Alignment.Center)
+        )
+        CircularProgressIndicator(
+            modifier =
+            Modifier
+                .padding(top = 16.dp)
+                .fillMaxWidth()
+                .wrapContentWidth(Alignment.CenterHorizontally)
+        )
     }
 }
 

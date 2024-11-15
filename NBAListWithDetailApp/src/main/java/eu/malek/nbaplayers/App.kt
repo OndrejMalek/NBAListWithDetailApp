@@ -2,6 +2,12 @@ package eu.malek.nbaplayers
 
 import android.app.Application
 
-class App: Application() {
-    val appModule = AppModule()
+class App : Application() {
+    lateinit var appModule: AppModule
+
+    override fun onCreate() {
+        super.onCreate()
+
+        appModule = AppModule(applicationContext.cacheDir)
+    }
 }
